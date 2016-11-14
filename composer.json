@@ -1,12 +1,12 @@
 {
-  "name": "jwma/wechat-app-session-bundle",
+  "name": "wechat-app/session-bundle",
   "description": "处理微信小程序会话",
   "type": "library",
   "license": "MIT",
   "authors": [
     {
-      "name": "jwma",
-      "email": "mjw@majiawei.com"
+      "name": "wechat-app",
+      "email": "wechat-app@majiawei.com"
     }
   ],
   "minimum-stability": "dev",
