@@ -6,10 +6,10 @@
 
 >微信的定位并不是 HTML5，这里很多人都有误解。在一些实现上，并不能想当然地用 HTML5 的思路来思考。比如，微信的请求接口 `wx.request` 并不支持 cookie 传递，所以会话层不能使用传统的 Session 方式。 ——腾讯云官方的微信小程序云端解决方案
 
-该Bundle包含的功能：
+该 Bundle 包含的功能：
 
  - 针对特定的控制器获取微信用户信息并校验合法性
- - 将用户信息缓存到Redis
+ - 将用户信息缓存到 Redis
  - 将用户信息设置到 `Symfony/Component/HttpFoundation/Request` 对象中
 
 #安装和配置
@@ -19,7 +19,7 @@
 composer require wechat-app/session-bundle
 ```
 
-## 第二步：启用Bundle
+## 第二步：启用 Bundle
 ```php
 <?php
 // app/AppKernel.php
@@ -36,7 +36,7 @@ public function registerBundles()
 }
 ```
 
-## 第三步：配置依赖Bundle
+## 第三步：配置依赖 Bundle
 
  - [snc/redis-bundle][3] 处理Redis操作的部分（配置）
  - [sensio/buzz-bundle][4] 处理 HTTP 请求的部分（可不配置）
@@ -92,7 +92,7 @@ class DemoController extends Controller implements SessionAuthController
     }
 }
 ```
-访问上面 action 对应的路由，将返回一个包含用户信息json，大致是：
+访问上面 action 对应的路由，将返回一个包含用户信息 json，大致是：
 ```json
 {
   "nickName": "MJ",
@@ -105,23 +105,23 @@ class DemoController extends Controller implements SessionAuthController
   "openId": "owVxxxxxxxxxxx"
 }
 ```
-此时登入到Redis中：
+此时登入到 Redis 中：
 ```redis
 keys *
 1) "wx-user:session:xxxxxxxxxxx"
 2) "wx-user:code:owVxxxxxxxxxxx"
 ```
-- `wx-user:code:***` 维护用户openid对应的session
+- `wx-user:code:***` 维护用户 openid 对应的 session
 - `wx-user:session:***` 保存着对应于前者的用户信息
 
-以上两个key都设置了过期时间，目前定为7200秒。
+以上两个 key 都设置了过期时间，目前定为7200秒。
 
 以上是后端接口部分的使用，小程序端的部分相对来说比较简单。
 
  - 在首次获取用户信息的时候，需要调用 `wx.login` 和 `wx.getUserInfo` 接口，把获取到的 `code`、`rawData` 和 `signature` 一同设置到 `wx.request` 接口的 `header` 中，设置时，有特定的名称，分别是 `X-WX-Code`、`X-WX-RawData` 和 `X-WX-Signature`
  - 接口返回非200的 HTTP 状态码时，请查看接口返回的提示信息，若请求成功，则会返回你自己编写的接口所返回的信息
 
-该 Bundle 暂时没有提供小程序端的部分，小程序端的实现可以参考上面的说明去自行实现，或借鉴腾讯云官方提供的一个[实现方式][6]，记住，是借鉴而不是照搬，因为这个 Bundle 并非是为了搭配腾讯云提供的实现方案的，另外要注意的是，其小程序端的实现方式只实现了 `wx.request` 接口的包装，而关于文件上传、WebSocket的实现都还没有包装，使用时还是需要考虑自己完善其他请求的包装。
+该 Bundle 暂时没有提供小程序端的部分，小程序端的实现可以参考上面的说明去自行实现，或借鉴腾讯云官方提供的一个[实现方式][6]，记住，是借鉴而不是照搬，因为这个 Bundle 并非是为了搭配腾讯云提供的实现方案的，另外要注意的是，其小程序端的实现方式只实现了 `wx.request` 接口的包装，而关于文件上传、WebSocket 的实现都还没有包装，使用时还是需要考虑自己完善其他请求的包装。
 
 
   [1]: https://www.qcloud.com/doc/product/448/6424
