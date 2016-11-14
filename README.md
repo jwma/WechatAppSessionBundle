@@ -47,7 +47,6 @@ public function registerBundles()
 ## 第四步：配置
 ```yaml
 # app/config/config.yml
-
 snc_redis:
     clients:
         default:
