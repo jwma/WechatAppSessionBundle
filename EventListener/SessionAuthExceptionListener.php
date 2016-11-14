@@ -4,7 +4,7 @@ namespace WechatApp\SessionBundle\EventListener;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
-use WechatApp\Session\Exception\SessionAuthException;
+use WechatApp\SessionBundle\Exception\SessionAuthException;
 
 class SessionAuthExceptionListener
 {

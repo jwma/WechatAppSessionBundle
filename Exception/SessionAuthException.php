@@ -1,6 +1,6 @@
 <?php
 
-namespace WechatApp\Session\Exception;
+namespace WechatApp\SessionBundle\Exception;
 
 
 class SessionAuthException extends \Exception

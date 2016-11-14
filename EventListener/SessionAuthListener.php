@@ -6,8 +6,8 @@ namespace WechatApp\SessionBundle\EventListener;
 use Buzz\Browser;
 use Predis\Client;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
-use WXApp\Session\Exception\SessionAuthException;
-use WXApp\SessionBundle\Controller\SessionAuthController;
+use WechatApp\SessionBundle\Exception\SessionAuthException;
+use WechatApp\SessionBundle\Controller\SessionAuthController;
 
 class SessionAuthListener
 {
