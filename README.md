@@ -1,7 +1,7 @@
 #WechatAppSessionBundle
 
 
-[WechatAppSessionBundle][2] 是一个用于处理微信小程序的 Symfony Bundle，实现思路参照了腾讯云官方-微信小程序云端解决方案中的 [会话管理场景][1]，即这个 Bundle 是其 PHP(Symfony) 版本的一种实现。(只是不知道有多少使用Symfony的童鞋😂)
+[WechatAppSessionBundle][2] 是一个用于处理微信小程序的 Symfony Bundle，实现思路参照了腾讯云官方-微信小程序云端解决方案中的 [会话管理场景][1]，即这个 Bundle 是其 PHP(Symfony) 版本的一种实现。(只是不知道有多少使用 Symfony 的童鞋😂)
 
 
 >微信的定位并不是 HTML5，这里很多人都有误解。在一些实现上，并不能想当然地用 HTML5 的思路来思考。比如，微信的请求接口 `wx.request` 并不支持 cookie 传递，所以会话层不能使用传统的 Session 方式。 ——腾讯云官方的微信小程序云端解决方案
