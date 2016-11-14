@@ -1,27 +1,25 @@
-WechatAppSessionBundle
-==
-
-[WechatAppSessionBundle][2] 是一个用于处理微信小程序的 Symfony Bundle，实现思路参照了腾讯云官方-微信小程序云端解决方案中的 [会话管理场景][1]，即这个 Bundle 是其 PHP(Symfony) 版本的一种实现。
+#WechatAppSessionBundle
 
 
-### 腾讯云官方的微信小程序云端解决方案
->微信的定位并不是 HTML5，这里很多人都有误解。在一些实现上，并不能想当然地用 HTML5 的思路来思考。比如，微信的请求接口 `wx.request` 并不支持 cookie 传递，所以会话层不能使用传统的 Session 方式。
+[WechatAppSessionBundle][2] 是一个用于处理微信小程序的 Symfony Bundle，实现思路参照了腾讯云官方-微信小程序云端解决方案中的 [会话管理场景][1]，即这个 Bundle 是其 PHP(Symfony) 版本的一种实现。(只是不知道有多少使用Symfony的童鞋😂)
 
-包含功能：
+
+>微信的定位并不是 HTML5，这里很多人都有误解。在一些实现上，并不能想当然地用 HTML5 的思路来思考。比如，微信的请求接口 `wx.request` 并不支持 cookie 传递，所以会话层不能使用传统的 Session 方式。 ——腾讯云官方的微信小程序云端解决方案
+
+该Bundle包含的功能：
 
  - 针对特定的控制器获取微信用户信息并校验合法性
  - 将用户信息缓存到Redis
  - 将用户信息设置到 `Symfony/Component/HttpFoundation/Request` 对象中
 
-安装和配置
----
+#安装和配置
 
-#### 第一步：使用 composer 安装 Bundle
+## 第一步：使用 composer 安装 Bundle
 ```bash
 composer require wechat-app/session-bundle
 ```
 
-#### 第二步：启用Bundle
+## 第二步：启用Bundle
 ```php
 <?php
 // app/AppKernel.php
@@ -38,7 +36,7 @@ public function registerBundles()
 }
 ```
 
-#### 第三步：配置依赖Bundle
+## 第三步：配置依赖Bundle
 
  - [snc/redis-bundle][3] 处理Redis操作的部分（配置）
  - [sensio/buzz-bundle][4] 处理 HTTP 请求的部分（可不配置）
@@ -46,7 +44,7 @@ public function registerBundles()
 相关依赖的深入配置，请参考其对应的文档。
 
 
-#### 第四步：配置
+## 第四步：配置
 ```yaml
 # app/config/config.yml
 
@@ -63,8 +61,7 @@ wechat_app_session:
     key_prefix: "wx-user:"  # Redis中，用户信息的key前缀
 ```
 
-如何使用
----
+## 第五步：使用
 在安装和配置完成之后，Bundle 的功能马上就可以投入使用了，该 Bundle 只会对实现了 `WechatApp/SessionBundle/Controller/SessionAuthController` 接口的控制器生效，对其他不是用于处理小程序请求的接口不会有影响。
 
 **处理流程请参照腾讯云提供的[官方文档][5]。**
