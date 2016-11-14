@@ -10,7 +10,11 @@
     }
   ],
   "minimum-stability": "stable",
-  "require": {},
+  "require": {
+    "sensio/buzz-bundle": "^1.1",
+    "snc/redis-bundle": "^2.0",
+    "predis/predis": "^1.1"
+  },
   "autoload": {
     "psr-4": {
       "WechatApp\\SessionBundle\\": ""
