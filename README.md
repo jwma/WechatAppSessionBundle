@@ -16,19 +16,12 @@ WechatAppSessionBundle
 安装和配置
 ---
 
-#### 第一步：安装依赖
-
- - [snc/redis-bundle][3] 处理Redis操作的部分
- - [sensio/buzz-bundle][4] 处理 HTTP 请求的部分
-
-相关依赖的安装和配置，请参考其对应的文档。
-
-#### 第二步：使用 composer 安装 Bundle
+#### 第一步：使用 composer 安装 Bundle
 ```bash
 composer require wechat-app/session-bundle
 ```
 
-#### 第三步：启用Bundle
+#### 第二步：启用Bundle
 ```php
 <?php
 // app/AppKernel.php
@@ -37,15 +30,33 @@ public function registerBundles()
 {
     $bundles = array(
         // ...
+        new Sensio\Bundle\BuzzBundle\SensioBuzzBundle(),
+        new Snc\RedisBundle\SncRedisBundle(),
         new WechatApp\SessionBundle\WechatAppSessionBundle(),
         // ...
     );
 }
 ```
 
-#### 第四步：设置配置信息
+#### 第三步：配置依赖Bundle
+
+ - [snc/redis-bundle][3] 处理Redis操作的部分（配置）
+ - [sensio/buzz-bundle][4] 处理 HTTP 请求的部分（可不配置）
+
+相关依赖的深入配置，请参考其对应的文档。
+
+
+#### 第四步：配置
 ```yaml
 # app/config/config.yml
+
+snc_redis:
+    clients:
+        default:
+            type: predis
+            alias: default
+            dsn: "redis://passwd@localhost"
+
 wechat_app_session:
     app_id:     "wx66666"   # 小程序的app id
     app_secret: "wx*****"   # 小程序的app secret
