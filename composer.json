@@ -1,7 +1,7 @@
 {
   "name": "wechat-app/session-bundle",
   "description": "处理微信小程序会话",
-  "type": "library",
+  "type": "symfony-bundle",
   "license": "MIT",
   "authors": [
     {
@@ -9,7 +9,7 @@
       "email": "wechat-app@majiawei.com"
     }
   ],
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "require": {},
   "autoload": {
     "psr-4": {
