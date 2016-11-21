@@ -39,6 +39,21 @@ class SessionAuthListener
     const USER_IN_REQUEST_KEY = 'wx_user';
 
     /**
+     * 会话过期
+     */
+    const ERR_SESSION_EXPIRED = 'ERR_SESSION_EXPIRED';
+
+    /**
+     * 换取 session key 失败
+     */
+    const ERR_SESSION_KEY_EXCHANGE_FAILED = 'ERR_SESSION_KEY_EXCHANGE_FAILED';
+
+    /**
+     * 不可信的 raw data
+     */
+    const ERR_UNTRUSTED_RAW_DATA = 'ERR_UNTRUSTED_RAW_DATA';
+
+    /**
      * WXSessionAuthListener constructor.
      * @param Client $redis
      * @param Browser $browser
@@ -72,7 +87,7 @@ class SessionAuthListener
 
             if (is_null($jsCode)) {
                 // 没有传递 code
-                throw new SessionAuthException('missing `code`', 400);
+                throw new SessionAuthException('missing `code`');
             }
 
             // 只传递了 `code`
@@ -81,7 +96,7 @@ class SessionAuthListener
 
                 if (!$userInfo) {
                     // jsCode没有对应的用户信息
-                    throw new SessionAuthException('user info not found by `code`', 403);
+                    throw new SessionAuthException(self::ERR_SESSION_EXPIRED);
                 }
 
                 $request->attributes->set(self::USER_IN_REQUEST_KEY, json_decode($userInfo, true));
@@ -91,16 +106,16 @@ class SessionAuthListener
             // 尝试使用传递过来的 `code` 换 `session_key`和 `openid`
             $jsCode2SessionResult = $this->jsCode2Session($jsCode);
             if (isset($jsCode2SessionResult['errcode'])) {
-                throw new SessionAuthException($jsCode2SessionResult['errmsg'], 403);
+                throw new SessionAuthException(self::ERR_SESSION_KEY_EXCHANGE_FAILED);
             }
 
             $openId = $jsCode2SessionResult['openid'];
             $sessionKey = $jsCode2SessionResult['session_key'];
-            $expiresIn = $jsCode2SessionResult['expires_in'];
+            // $expiresIn = $jsCode2SessionResult['expires_in']; // 官方提供的过期时间
 
             $userInfoStr = urldecode($rawData);
             if (sha1($userInfoStr . $sessionKey) != $signature) {
-                throw new SessionAuthException('untrusted raw data', 403);
+                throw new SessionAuthException(self::ERR_UNTRUSTED_RAW_DATA);
             }
 
             $userInfo = json_decode($userInfoStr, true);

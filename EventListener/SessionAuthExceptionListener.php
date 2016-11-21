@@ -2,7 +2,7 @@
 
 namespace WechatApp\SessionBundle\EventListener;
 
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use WechatApp\SessionBundle\Exception\SessionAuthException;
 
@@ -13,7 +13,8 @@ class SessionAuthExceptionListener
         $exception = $event->getException();
 
         if ($exception instanceof SessionAuthException) {
-            $response = new JsonResponse(['msg' => $exception->getMessage()], $exception->getCode());
+            $response = new Response($exception->getMessage());
+            $response->headers->set('Content-Type', 'application/json');
             $event->setResponse($response);
         }
     }
