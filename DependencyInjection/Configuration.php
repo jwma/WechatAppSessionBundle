@@ -34,6 +34,9 @@ class Configuration implements ConfigurationInterface
                     ->isRequired()
                     ->cannotBeEmpty()
                 ->end()
+                ->scalarNode('expires_in')
+                    ->defaultValue(7200)
+                ->end()
             ->end();
 
         return $treeBuilder;

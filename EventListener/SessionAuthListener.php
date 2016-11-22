@@ -36,6 +36,11 @@ class SessionAuthListener
      */
     protected $keyPrefix;
 
+    /**
+     * @var integer
+     */
+    protected $expiresIn;
+
     const USER_IN_REQUEST_KEY = 'wx_user';
 
     /**
@@ -60,14 +65,16 @@ class SessionAuthListener
      * @param $appId
      * @param $appSecret
      * @param $keyPrefix
+     * @param $expiresIn
      */
-    public function __construct(Client $redis, Browser $browser, $appId, $appSecret, $keyPrefix)
+    public function __construct(Client $redis, Browser $browser, $appId, $appSecret, $keyPrefix, $expiresIn)
     {
         $this->redis = $redis;
         $this->browser = $browser;
         $this->appId = $appId;
         $this->appSecret = $appSecret;
         $this->keyPrefix = $keyPrefix;
+        $this->expiresIn = $expiresIn;
     }
 
     public function onKernelController(FilterControllerEvent $event)
@@ -128,8 +135,8 @@ class SessionAuthListener
                 $this->redis->del([$this->keyPrefix . 'session:' . $oldCode]);
             }
 
-            $this->redis->setex($sk, 7200, $jsCode);
-            $this->redis->setex($this->keyPrefix . 'session:' . $jsCode, 7200, json_encode($userInfo));
+            $this->redis->setex($sk, $this->expiresIn, $jsCode);
+            $this->redis->setex($this->keyPrefix . 'session:' . $jsCode, $this->expiresIn, json_encode($userInfo));
             $request->attributes->set(self::USER_IN_REQUEST_KEY, $userInfo);
         }
     }
