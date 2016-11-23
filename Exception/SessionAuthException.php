@@ -11,7 +11,12 @@ class SessionAuthException extends \Exception
             unset($additional['reason']);
         }
 
+        if (isset($additional['hasError'])) {
+            unset($additional['hasError']);
+        }
+
         $error = array_merge([
+            'hasError' => true,
             'reason' => $reason
         ], $additional);
 
