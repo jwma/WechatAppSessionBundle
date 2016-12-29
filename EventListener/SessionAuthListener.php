@@ -41,7 +41,15 @@ class SessionAuthListener
      */
     protected $expiresIn;
 
-    const USER_IN_REQUEST_KEY = 'wx_user';
+    /**
+     * @var boolean debug模式
+     */
+    private $debug;
+
+    /**
+     * @var string 保存在 Request 中的用户信息所示用的 key
+     */
+    private $userInRequestKey;
 
     /**
      * 会话过期
@@ -77,6 +85,22 @@ class SessionAuthListener
         $this->expiresIn = $expiresIn;
     }
 
+    /**
+     * @param $debug boolean
+     */
+    public function setDebug($debug)
+    {
+        $this->debug = $debug;
+    }
+
+    /**
+     * @param $key string
+     */
+    public function setUserInRequestKey($key)
+    {
+        $this->userInRequestKey = $key;
+    }
+
     public function onKernelController(FilterControllerEvent $event)
     {
         $controller = $event->getController();
@@ -88,56 +112,72 @@ class SessionAuthListener
         if ($controller[0] instanceof SessionAuthController) {
             $request = $event->getRequest();
 
-            $jsCode = $request->headers->get('X-WX-Code');
-            $rawData = $request->headers->get('X-WX-RawData');
-            $signature = $request->headers->get('X-WX-Signature');
+            $userInfo = null;
 
-            if (is_null($jsCode)) {
-                // 没有传递 code
-                throw new SessionAuthException('missing `code`');
-            }
+            if (!$this->debug) {
+                $jsCode = $request->headers->get('X-WX-Code');
+                $rawData = $request->headers->get('X-WX-RawData');
+                $signature = $request->headers->get('X-WX-Signature');
 
-            // 只传递了 `code`
-            if (is_null($rawData)) {
-                $userInfo = $this->redis->get($this->keyPrefix . 'session:' . $jsCode);
-
-                if (!$userInfo) {
-                    // jsCode没有对应的用户信息
-                    throw new SessionAuthException(self::ERR_SESSION_EXPIRED);
+                if (is_null($jsCode)) {
+                    // 没有传递 code
+                    throw new SessionAuthException('missing `code`');
                 }
 
-                $request->attributes->set(self::USER_IN_REQUEST_KEY, json_decode($userInfo, true));
-                return;
+                // 只传递了 `code`
+                if (is_null($rawData)) {
+                    $userInfo = $this->redis->get($this->keyPrefix . 'session:' . $jsCode);
+
+                    if (!$userInfo) {
+                        // jsCode没有对应的用户信息
+                        throw new SessionAuthException(self::ERR_SESSION_EXPIRED);
+                    }
+
+                    $request->attributes->set($this->userInRequestKey, json_decode($userInfo, true));
+                    return;
+                }
+
+                // 尝试使用传递过来的 `code` 换 `session_key`和 `openid`
+                $jsCode2SessionResult = $this->jsCode2Session($jsCode);
+                if (isset($jsCode2SessionResult['errcode'])) {
+                    throw new SessionAuthException(self::ERR_SESSION_KEY_EXCHANGE_FAILED);
+                }
+
+                $openId = $jsCode2SessionResult['openid'];
+                $sessionKey = $jsCode2SessionResult['session_key'];
+                // $expiresIn = $jsCode2SessionResult['expires_in']; // 官方提供的过期时间
+
+                $userInfoStr = urldecode($rawData);
+                if (sha1($userInfoStr . $sessionKey) != $signature) {
+                    throw new SessionAuthException(self::ERR_UNTRUSTED_RAW_DATA);
+                }
+
+                $userInfo = json_decode($userInfoStr, true);
+                $userInfo['openId'] = $openId;
+
+                $sk = $this->keyPrefix . 'code:' . $openId;
+
+                $oldCode = $this->redis->get($sk);
+                if ($oldCode) {
+                    $this->redis->del([$this->keyPrefix . 'session:' . $oldCode]);
+                }
+
+                $this->redis->setex($sk, $this->expiresIn, $jsCode);
+                $this->redis->setex($this->keyPrefix . 'session:' . $jsCode, $this->expiresIn, json_encode($userInfo));
+            } else {
+                $userInfo = [
+                    'nickName' => 'debug_user',
+                    'gender' => 1,
+                    'language' => 'debug_language',
+                    'city' => 'debug_city',
+                    'province' => 'debug_province',
+                    'country' => 'debug_country',
+                    'avatarUrl' => 'debug_avatar_url',
+                    'openId' => 'debug_open_id',
+                ];
             }
 
-            // 尝试使用传递过来的 `code` 换 `session_key`和 `openid`
-            $jsCode2SessionResult = $this->jsCode2Session($jsCode);
-            if (isset($jsCode2SessionResult['errcode'])) {
-                throw new SessionAuthException(self::ERR_SESSION_KEY_EXCHANGE_FAILED);
-            }
-
-            $openId = $jsCode2SessionResult['openid'];
-            $sessionKey = $jsCode2SessionResult['session_key'];
-            // $expiresIn = $jsCode2SessionResult['expires_in']; // 官方提供的过期时间
-
-            $userInfoStr = urldecode($rawData);
-            if (sha1($userInfoStr . $sessionKey) != $signature) {
-                throw new SessionAuthException(self::ERR_UNTRUSTED_RAW_DATA);
-            }
-
-            $userInfo = json_decode($userInfoStr, true);
-            $userInfo['openId'] = $openId;
-
-            $sk = $this->keyPrefix . 'code:' . $openId;
-
-            $oldCode = $this->redis->get($sk);
-            if ($oldCode) {
-                $this->redis->del([$this->keyPrefix . 'session:' . $oldCode]);
-            }
-
-            $this->redis->setex($sk, $this->expiresIn, $jsCode);
-            $this->redis->setex($this->keyPrefix . 'session:' . $jsCode, $this->expiresIn, json_encode($userInfo));
-            $request->attributes->set(self::USER_IN_REQUEST_KEY, $userInfo);
+            $request->attributes->set($this->userInRequestKey, $userInfo);
         }
     }
 

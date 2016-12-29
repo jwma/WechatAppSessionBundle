@@ -55,10 +55,12 @@ snc_redis:
             dsn: "redis://passwd@localhost"
 
 wechat_app_session:
-    app_id:     "wx66666"   # 小程序的app id
-    app_secret: "wx*****"   # 小程序的app secret
-    key_prefix: "wx-user:"  # Redis中，用户信息的key前缀
-    expires_in: 7200        # 会话过期时间（单位：秒），非必须，默认7200
+    app_id:     "wx66666"             # 小程序的app id
+    app_secret: "wx*****"             # 小程序的app secret
+    key_prefix: "wx-user:"            # Redis中，用户信息的key前缀
+    expires_in: 7200                  # 会话过期时间（单位：秒），非必须，默认7200
+    debug: false                      # 可选，默认为 false， 是否debug，debug模式不会进行真正的验证，在请求中会产生一个假的用户信息
+    user_in_request_key: 'wx_user'    # 可选，默认为 wx_user，保存在 Request 中的用户信息所示用的 key
 ```
 
 ## 第五步：使用
@@ -87,8 +89,8 @@ class DemoController extends Controller implements SessionAuthController
     public function testAction(Request $request) 
     {
         // 从 Request 的 header 的属性中获取当前请求的微信用户信息
-        $wxUser = $request->attributes->get('wx_user');
-        return $this->json($wxUser);
+       $key = $this->getParameter('wechat_app_session.user_in_request_key');
+       return $this->json($request->attributes->get($key));
     }
 }
 ```

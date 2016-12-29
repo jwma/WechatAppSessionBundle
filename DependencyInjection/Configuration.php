@@ -37,6 +37,12 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('expires_in')
                     ->defaultValue(7200)
                 ->end()
+                ->scalarNode('user_in_request_key')
+                    ->defaultValue('wx_user')
+                ->end()
+                ->booleanNode('debug')
+                    ->defaultFalse()
+                ->end()
             ->end();
 
         return $treeBuilder;
