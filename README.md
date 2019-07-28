@@ -1,6 +1,6 @@
 # WechatAppSessionBundle
 
-⚠️⚠️由于项目是小程序正式公测时编写，现已不适用用生产环境的项目⚠️⚠️
+⚠️⚠️由于项目是小程序正式公测时编写，现已不适用于生产环境的项目⚠️⚠️
 
 
 [WechatAppSessionBundle][2] 是一个用于处理微信小程序的 Symfony Bundle，实现思路参照了腾讯云官方-微信小程序云端解决方案中的 [会话管理场景][1]，即这个 Bundle 是其 PHP(Symfony) 版本的一种实现。(只是不知道有多少使用 Symfony 的童鞋😂)
